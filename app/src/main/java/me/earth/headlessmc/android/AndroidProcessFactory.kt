@@ -1,8 +1,7 @@
 package me.earth.headlessmc.android
 
-import me.earth.headlessmc.api.config.HasConfig
 import me.earth.headlessmc.launcher.download.DownloadService
-import me.earth.headlessmc.launcher.files.FileManager
+import me.earth.headlessmc.launcher.files.LauncherConfig
 import me.earth.headlessmc.launcher.java.Java
 import me.earth.headlessmc.launcher.launch.InMemoryLauncher
 import me.earth.headlessmc.launcher.launch.JavaLaunchCommandBuilder
@@ -17,10 +16,9 @@ import java.nio.file.Path
 
 class AndroidProcessFactory(
     downloadService: DownloadService,
-    files: FileManager,
-    config: HasConfig,
+    launcherConfig: LauncherConfig,
     os: OS
-) : ProcessFactory(downloadService, files, config, os) {
+) : ProcessFactory(downloadService, launcherConfig, os) {
     override fun inMemoryLaunch(iml: InMemoryLauncher) {
         val androidLauncher = AndroidInMemoryLauncher(iml.options, iml.command, iml.version, iml.java)
         androidLauncher.launch()

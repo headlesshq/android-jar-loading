@@ -22,6 +22,7 @@ import me.earth.headlessmc.launcher.download.ChecksumService
 import me.earth.headlessmc.launcher.download.DownloadService
 import me.earth.headlessmc.launcher.files.ConfigService
 import me.earth.headlessmc.launcher.files.FileManager
+import me.earth.headlessmc.launcher.files.LauncherConfig
 import me.earth.headlessmc.launcher.files.MinecraftFinder
 import me.earth.headlessmc.launcher.os.OSFactory
 import me.earth.headlessmc.launcher.plugin.PluginManager
@@ -74,28 +75,27 @@ class HmcAndroidLauncher {
             val os = OSFactory.detect(configs.config)
             logger.info("OS: $os")
             val mcFiles = MinecraftFinder.find(configs.config, os)
-            val versions = VersionService(mcFiles)
+            val launcherConfig = LauncherConfig(configs, mcFiles, mcFiles)
+            val versions = VersionService(launcherConfig)
             versions.refresh()
 
             val javas = Java8Service(configs)
-            val accountStore = AccountStore(files, configs)
+            val accountStore = AccountStore(launcherConfig)
             val accounts = AccountManager(AccountValidator(), OfflineChecker(configs), accountStore)
 
             //accounts.load(configs.config)
             val downloadService = DownloadService()
-            val versionSpecificModManager = VersionSpecificModManager(downloadService, FileManager(""))
+            val versionSpecificModManager = VersionSpecificModManager(downloadService, launcherConfig)
             versionSpecificModManager.addRepository(VersionSpecificMods.HMC_SPECIFICS)
             versionSpecificModManager.addRepository(VersionSpecificMods.MC_RUNTIME_TEST)
 
             val launcher = Launcher(
                 hmc,
                 versions,
-                mcFiles,
-                mcFiles,
+                launcherConfig,
                 ChecksumService(),
                 downloadService,
-                files,
-                AndroidProcessFactory(downloadService, mcFiles, configs, os),
+                AndroidProcessFactory(downloadService, launcherConfig, os),
                 configs,
                 javas,
                 accounts,
